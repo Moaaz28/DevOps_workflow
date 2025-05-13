@@ -15,7 +15,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 
-const dbUrl = process.env.DB_URL;
+const dbUrl = process.env.MONGODB_URI;
 const port = process.env.PORT;
 
 // create express app
