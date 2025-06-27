@@ -18,7 +18,7 @@ jobs:
 
     - name: Build Docker image
       uses: docker/build-push-action@v5
-  with:
-    context: .
-    push: false
-    tags: my-app-image:local
+      with:
+        context: .
+        push: false
+        tags: my-app-image:local
