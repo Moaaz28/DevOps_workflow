@@ -32,4 +32,4 @@ jobs:
       with:
         context: .
         push: true
-        tags: 679357059961.dkr.ecr.me-south-1.amazonaws.com/Node-todo-app:latest
+        tags: 679357059961.dkr.ecr.me-south-1.amazonaws.com/node-todo-app:latest
