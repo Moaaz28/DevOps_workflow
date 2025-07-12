@@ -32,4 +32,5 @@ jobs:
       with:
         context: .
         push: true
+        platforms: linux/amd64,linux/arm64
         tags: 679357059961.dkr.ecr.me-south-1.amazonaws.com/node-todo-app:latest
