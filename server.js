@@ -71,6 +71,6 @@ app.get('/tasks-ui/edit/:taskId', editTaskUI);
 
 
 // listen for requests
-app.listen(port, '0.0.0.0', () => {
+app.listen(port, () => {
   console.log(`Server is listening on port ${port}`);
 });
