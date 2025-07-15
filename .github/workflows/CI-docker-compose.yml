@@ -26,7 +26,6 @@ jobs:
     - name: Login to Amazon ECR
       uses: aws-actions/amazon-ecr-login@v2
 
-
     - name: Build Docker image
       uses: docker/build-push-action@v5
       with:
@@ -35,27 +34,20 @@ jobs:
         platforms: linux/amd64,linux/arm64
         tags: 679357059961.dkr.ecr.me-south-1.amazonaws.com/node-todo-app:latest
 
-    - name: Deploy on EC2 instance
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: 157.175.53.129
-        username: ubuntu
-        key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
-        script: |
-          aws ecr get-login-password --region me-south-1 | docker login --username AWS --password-stdin 679357059961.dkr.ecr.me-south-1.amazonaws.com
-
-          docker pull 679357059961.dkr.ecr.me-south-1.amazonaws.com/node-todo-app:latest
-
-          docker stop todo-app || true
-          docker rm todo-app || true
-
-          docker network create app-net || true
-
-          docker run -d \
-            --name todo-app \
-            --network app-net \
-            --env-file .env \
-            -p 80:3000 \
-            679357059961.dkr.ecr.me-south-1.amazonaws.com/node-todo-app:latest
-
-          docker ps
+    - name: Deploy to EC2 via SSM
+      run: |
+        aws ssm send-command \
+          --document-name "AWS-RunShellScript" \
+          --comment "Deploying latest Docker image" \
+          --instance-ids i-09f9b11eef6fba2f0 \
+          --region me-south-1 \
+          --parameters 'commands=[
+            "aws ecr get-login-password --region me-south-1 | docker login --username AWS --password-stdin 679357059961.dkr.ecr.me-south-1.amazonaws.com",
+            "docker stop todo-app || true",
+            "docker rm todo-app || true",
+            "docker pull 679357059961.dkr.ecr.me-south-1.amazonaws.com/node-todo-app:latest",
+            "docker network create app-net || true",
+            "docker run -d --name todo-app --network app-net --env-file /home/ubuntu/.env -p 80:3000 679357059961.dkr.ecr.me-south-1.amazonaws.com/node-todo-app:latest",
+            "docker ps"
+          ]' \
+          --output text
