@@ -1,20 +1,19 @@
-# Use Node.js official image
 FROM node:16
 
-# Set working directory
+RUN groupadd -r appuser-group && useradd -r -g appuser-group appuser
+
 WORKDIR /app
 
-# Copy package.json files
 COPY package*.json ./
 
-# Install dependencies
 RUN npm install
 
-# Copy all other files
 COPY . .
 
-# Expose port
+RUN chown -R appuser:appuser-group /app
+
+USER appuser
+
 EXPOSE 3000
 
-# Run the app
 CMD ["node", "server.js"]
