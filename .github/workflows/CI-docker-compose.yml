@@ -42,15 +42,14 @@ jobs:
           --instance-ids ${{ secrets.INSTANCE_ID }} \
           --region me-south-1 \
           --parameters 'commands=[
-            "sudo -u ubuntu bash -c \"\
-              aws ecr get-login-password --region me-south-1 | docker login --username AWS --password-stdin $(echo ${{ secrets.IMAGE_URI }} | sed 's/:.*//') && \
-              docker stop todo-app || true && \
-              docker rm todo-app || true && \
-              docker pull ${{ secrets.IMAGE_URI }}:latest && \
-              docker network create app-net || true && \
-              docker run -d --name todo-app --network app-net --env-file /home/ubuntu/.env -p 127.0.0.1:3000:3000 ${{ secrets.IMAGE_URI }}:latest && \
-              docker ps \
-            \""
+            "aws ecr get-login-password --region me-south-1 | docker login --username AWS --password-stdin $(echo ${{ secrets.IMAGE_URI }} | sed '\''s/:.*//'\'')",
+            "sudo -u ubuntu docker stop todo-app || true",
+            "sudo -u ubuntu docker rm todo-app || true",
+            "sudo -u ubuntu docker pull ${{ secrets.IMAGE_URI }}:latest",
+            "sudo -u ubuntu docker network create app-net || true",
+            "sudo -u ubuntu docker run -d --name todo-app --network app-net --env-file /home/ubuntu/.env -p 127.0.0.1:3000:3000 ${{ secrets.IMAGE_URI }}:latest",
+            "sudo -u ubuntu docker ps"
           ]' \
           --output text
+
 
