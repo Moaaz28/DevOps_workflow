@@ -32,22 +32,25 @@ jobs:
         context: .
         push: true
         platforms: linux/amd64,linux/arm64
-        tags: 679357059961.dkr.ecr.me-south-1.amazonaws.com/node-todo-app:latest
+        tags: ${{ secrets.IMAGE_URI }}
 
     - name: Deploy to EC2 via SSM
       run: |
         aws ssm send-command \
           --document-name "AWS-RunShellScript" \
           --comment "Deploying latest Docker image" \
-          --instance-ids i-09f9b11eef6fba2f0 \
+          --instance-ids ${{ secrets.INSTANCE_ID }} \
           --region me-south-1 \
           --parameters 'commands=[
-            "aws ecr get-login-password --region me-south-1 | docker login --username AWS --password-stdin 679357059961.dkr.ecr.me-south-1.amazonaws.com",
-            "docker stop todo-app || true",
-            "docker rm todo-app || true",
-            "docker pull 679357059961.dkr.ecr.me-south-1.amazonaws.com/node-todo-app:latest",
-            "docker network create app-net || true",
-            "docker run -d --name todo-app --network app-net --env-file /home/ubuntu/.env -p 80:3000 679357059961.dkr.ecr.me-south-1.amazonaws.com/node-todo-app:latest",
-            "docker ps"
+            "sudo -u ubuntu bash -c \"\
+              aws ecr get-login-password --region me-south-1 | docker login --username AWS --password-stdin $(echo ${{ secrets.IMAGE_URI }} | sed 's/:.*//') && \
+              docker stop todo-app || true && \
+              docker rm todo-app || true && \
+              docker pull ${{ secrets.IMAGE_URI }}:latest && \
+              docker network create app-net || true && \
+              docker run -d --name todo-app --network app-net --env-file /home/ubuntu/.env -p 127.0.0.1:3000:3000 ${{ secrets.IMAGE_URI }}:latest && \
+              docker ps \
+            \""
           ]' \
           --output text
+
